@@ -1,24 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import * as sethealth from '@sethealth/react';
+import { SetProgressBar, SetViewVolumetric } from '@sethealth/react';
 
 function App() {
+  const [workspace, setWorkspace] = useState<sethealth.WorkspaceState>();
+  const [error, setError] = useState<Error>();
+  const [loading, setLoading] = useState<number>();
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {loading === undefined && (
+        <button onClick={async () => {
+          const result = await sethealth.med.loadFromSource({
+            type: 'nrrd',
+            input: "https://public1-eu-sethealth.ams3.cdn.digitaloceanspaces.com/public/ankle.nrrd.gz"
+          }, (progress) => setLoading(progress));
+          if (result.error) {
+            setError(result.error);
+          } else {
+            const handler = result.value[0];
+            const workspace = await sethealth.workspace.create(handler);
+            setWorkspace(workspace);
+          }
+        }}>
+          Load medical image
+        </button>
+      )}
+
+      {loading !== undefined && loading < 1.0 && (
+        <SetProgressBar value={loading}/>
+      )}
+
+      {error && (
+        <div>
+          Loading failed
+          {error}
+        </div>
+      )}
+
+      {workspace && (
+        <SetViewVolumetric
+          workspace={workspace}
+        />
+      )}
     </div>
   );
 }
