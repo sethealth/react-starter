@@ -1,6 +1,6 @@
 # Sethealth React App
 
-This repo contains the starter guide in [Sethealth's docs](/docs/introduction/react).
+This repo contains the starter guide in [Sethealth's docs](https://docs.set.health/docs/introduction/react).
 
 ## Available Scripts
 
